@@ -26,6 +26,7 @@ async function run() {
     // await client.connect();
 
     const classCollation = client.db('crownArt').collection('class')
+    const userCollation = client.db('crownArt').collection('user')
 
     // Add Class
     app.post('/classes', async(req, res) => {
@@ -39,6 +40,20 @@ async function run() {
       const cursor = await classCollation.find().toArray();
       res.send(cursor)
     })
+
+    // Save User
+    app.post('/users', async(req, res) => {
+      const newUser = req.body;
+      const query = {email: newUser.email}
+      const existingUser = await userCollation.findOne(query);
+      if(existingUser){
+        return res.send({massage: 'user already exists'})
+      }
+      const result = await userCollation.insertOne(newUser);
+      res.send(result)
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
