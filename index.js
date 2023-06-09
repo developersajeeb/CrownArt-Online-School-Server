@@ -67,7 +67,12 @@ async function run() {
       res.send(result)
     })
 
-    
+    //Get role api
+    app.get('/user/admin', async(req, res) => {
+      const email = req.query.email;
+      const cursor = await adminCollation.findOne({email: email});
+      res.send(cursor);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
