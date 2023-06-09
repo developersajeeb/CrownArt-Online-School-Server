@@ -29,31 +29,35 @@ async function run() {
     const userCollation = client.db('crownArt').collection('user')
 
     // Add Class
-    app.post('/classes', async(req, res) => {
+    app.post('/classes', async (req, res) => {
       const newClass = req.body;
       const result = await classCollation.insertOne(newClass);
       res.send(result)
     })
 
     // Get Class
-    app.get('/classes', async(req, res) => {
+    app.get('/classes', async (req, res) => {
       const cursor = await classCollation.find().toArray();
       res.send(cursor)
     })
 
     // Save User
-    app.post('/users', async(req, res) => {
+    app.post('/users', async (req, res) => {
       const newUser = req.body;
-      const query = {email: newUser.email}
+      const query = { email: newUser.email }
       const existingUser = await userCollation.findOne(query);
-      if(existingUser){
-        return res.send({massage: 'user already exists'})
+      if (existingUser) {
+        return res.send({ massage: 'user already exists' })
       }
       const result = await userCollation.insertOne(newUser);
       res.send(result)
     })
 
-
+    // Get User
+    app.get('/users', async (req, res) => {
+      const cursor = await userCollation.find().toArray();
+      res.send(cursor)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -67,9 +71,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('CrownArt is running')
+  res.send('CrownArt is running')
 })
 
 app.listen(port, () => {
-    console.log(`CrownArt server is running: ${port}`);
+  console.log(`CrownArt server is running: ${port}`);
 })
