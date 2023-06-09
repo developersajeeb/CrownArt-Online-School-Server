@@ -34,7 +34,11 @@ async function run() {
       res.send(result)
     })
 
-   
+    // Get Class
+    app.get('/classes', async(req, res) => {
+      const cursor = await classCollation.find().toArray();
+      res.send(cursor)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
