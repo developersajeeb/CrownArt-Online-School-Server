@@ -25,8 +25,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const classCollation = client.db('crownArt').collection('class')
-    const userCollation = client.db('crownArt').collection('user')
+    const classCollation = client.db('crownArt').collection('class');
+    const userCollation = client.db('crownArt').collection('user');
+    const adminCollation = client.db('crownArt').collection('admin');
 
     // Add Class
     app.post('/classes', async (req, res) => {
@@ -58,6 +59,15 @@ async function run() {
       const cursor = await userCollation.find().toArray();
       res.send(cursor)
     })
+
+    //Make roll api
+    app.post('/user/admin', async(req, res) => {
+      const admin = req.body;
+      const result = await adminCollation.insertOne(admin);
+      res.send(result)
+    })
+
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
