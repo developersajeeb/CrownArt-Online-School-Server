@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
@@ -60,18 +60,25 @@ async function run() {
       res.send(cursor)
     })
 
-    //Make roll api
-    app.post('/user/admin', async(req, res) => {
-      const admin = req.body;
-      const result = await adminCollation.insertOne(admin);
-      res.send(result)
-    })
+    // //Make roll and post api
+    // app.post('/user/admin', async(req, res) => {
+    //   const admin = req.body;
+    //   const result = await adminCollation.insertOne(admin);
+    //   res.send(result)
+    // })
 
-    //Get role api
-    app.get('/user/admin', async(req, res) => {
-      const email = req.query.email;
-      const cursor = await adminCollation.findOne({email: email});
-      res.send(cursor);
+    //Make role api
+    app.patch('/user/admin/:id', async(req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: 'admin'
+        },
+      };
+      const result = await userCollation.updateOne(filter, updateDoc);
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
