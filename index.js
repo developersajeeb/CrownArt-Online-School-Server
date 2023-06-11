@@ -75,7 +75,7 @@ async function run() {
       res.send(cursor)
     })
 
-    //Make role api
+    //Make admin role api
     app.patch('/user/admin/:id', async(req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -89,7 +89,7 @@ async function run() {
       res.send(result);
     })
 
-    // Email query
+    // Email query for admin
     app.get('/user/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
 
@@ -100,6 +100,34 @@ async function run() {
       const query = { email: email }
       const user = await userCollation.findOne(query);
       const result = { admin: user?.role === 'admin' }
+      res.send(result)
+    })
+
+    //Make instructor role api
+    app.patch('/user/instructor/:id', async(req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: 'instructor'
+        },
+      };
+      const result = await userCollation.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+    // Email query for instructor
+    app.get('/user/instructor/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false })
+      }
+
+      const query = { email: email }
+      const user = await userCollation.findOne(query);
+      const result = { instructor: user?.role === 'instructor' }
       res.send(result)
     })
 
