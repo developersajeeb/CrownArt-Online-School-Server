@@ -131,6 +131,26 @@ async function run() {
       res.send(result)
     })
 
+    // Get role specific data
+    app.get('/user-type/:role', async(req, res) => {
+      res.send(await userCollation.find({
+        role: req.params.role
+      })
+      .toArray()
+      )
+    })
+
+    // Get Some Data by per parson add classes data
+    app.get('/my-classes', async(req, res) => {
+      console.log(req.query.email);
+      let query = {};
+      if(req.query?.email){
+        query = {instructorEmail: req.query.email}
+      }
+      const result = await classCollation.find(query).toArray();
+      res.send(result)
+    })
+
     // JWT
     app.post('/jwt', (req, res) => {
       const user = req.body;
