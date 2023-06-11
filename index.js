@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config()
+require('dotenv').config();
+const jwt = require('jsonwebtoken')
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -60,13 +61,6 @@ async function run() {
       res.send(cursor)
     })
 
-    // //Make roll and post api
-    // app.post('/user/admin', async(req, res) => {
-    //   const admin = req.body;
-    //   const result = await adminCollation.insertOne(admin);
-    //   res.send(result)
-    // })
-
     //Make role api
     app.patch('/user/admin/:id', async(req, res) => {
       const id = req.params.id;
@@ -79,6 +73,15 @@ async function run() {
       };
       const result = await userCollation.updateOne(filter, updateDoc);
       res.send(result);
+    })
+
+    // JWT
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '24h'
+      });
+      res.send({token});
     })
 
     // Send a ping to confirm a successful connection
