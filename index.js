@@ -43,7 +43,6 @@ async function run() {
 
     const classCollation = client.db('crownArt').collection('class');
     const userCollation = client.db('crownArt').collection('user');
-    const adminCollation = client.db('crownArt').collection('admin');
 
     // Add Class
     app.post('/classes', async (req, res) => {
@@ -88,6 +87,20 @@ async function run() {
       };
       const result = await userCollation.updateOne(filter, updateDoc);
       res.send(result);
+    })
+
+    // Email query
+    app.get('/user/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
+      }
+
+      const query = { email: email }
+      const user = await userCollation.findOne(query);
+      const result = { admin: user?.role === 'admin' }
+      res.send(result)
     })
 
     // JWT
