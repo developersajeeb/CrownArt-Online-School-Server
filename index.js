@@ -140,6 +140,33 @@ async function run() {
       )
     })
 
+    // Get single class
+    app.get('/class/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await classCollation.findOne(query);
+      res.send(result)
+    })
+
+    // Update the class info
+    app.put('/class/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true};
+      const updatedClass = req.body;
+      const newClass = {
+        $set: {
+          className: updatedClass.className,
+          classImg: updatedClass.classImg,
+          availableSeats: updatedClass.availableSeats,
+          price: updatedClass.price,
+          description: updatedClass.description,
+        }
+      }
+      const result = await classCollation.updateOne(filter, newClass, options);
+      res.send(result)
+    })
+
     // Get Some Data by per parson add classes data
     app.get('/my-classes', async(req, res) => {
       console.log(req.query.email);
