@@ -43,6 +43,7 @@ async function run() {
 
     const classCollation = client.db('crownArt').collection('class');
     const userCollation = client.db('crownArt').collection('user');
+    const enrollCollation = client.db('crownArt').collection('allEnrolls');
 
     // Add Class
     app.post('/classes', async (req, res) => {
@@ -212,6 +213,35 @@ async function run() {
       const result = await classCollation.updateOne(filter, updateDoc);
       res.send(result);
     })
+
+    // All Enrollment collection
+    app.post('/all-enroll', async(req, res) => {
+      const item = req.body;
+      const result = await enrollCollation.insertOne(item);
+      res.send(result)
+    })
+
+    // Get Some Data by per student select classes data
+    app.get('/my-enroll-classes', async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email }
+      }
+      const result = await enrollCollation.find(query).toArray();
+      res.send(result)
+    })
+
+    // Feedback api
+    app.put('/classes/:id', async (req, res) => {
+      const classId = req.params.id;
+      const updatedData = req.body;
+      const result = await classCollation.updateOne(
+        { _id: ObjectId(classId) },
+        { $set: updatedData }
+      );
+      res.send(result);
+    })
+
 
     // JWT
     app.post('/jwt', (req, res) => {
