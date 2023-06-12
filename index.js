@@ -23,13 +23,13 @@ const client = new MongoClient(uri, {
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
-  if(!authorization){
-    return res.status(401).send({error: true, message: 'unauthorized access'})
+  if (!authorization) {
+    return res.status(401).send({ error: true, message: 'unauthorized access' })
   }
   const token = authorization.split(' ')[1];
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
-    if(error){
-      return res.status(403).send({error: true, massage: 'unauthorized access'})
+    if (error) {
+      return res.status(403).send({ error: true, massage: 'unauthorized access' })
     }
     req.decoded = decoded;
     next()
@@ -76,7 +76,7 @@ async function run() {
     })
 
     //Make admin role api
-    app.patch('/user/admin/:id', async(req, res) => {
+    app.patch('/user/admin/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const filter = { _id: new ObjectId(id) };
@@ -104,7 +104,7 @@ async function run() {
     })
 
     //Make instructor role api
-    app.patch('/user/instructor/:id', async(req, res) => {
+    app.patch('/user/instructor/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const filter = { _id: new ObjectId(id) };
@@ -132,27 +132,36 @@ async function run() {
     })
 
     // Get role specific data
-    app.get('/user-type/:role', async(req, res) => {
+    app.get('/user-type/:role', async (req, res) => {
       res.send(await userCollation.find({
         role: req.params.role
       })
-      .toArray()
+        .toArray()
+      )
+    })
+
+    // Get status specific Classes
+    app.get('/approved-classes/:status', async (req, res) => {
+      res.send(await classCollation.find({
+        classStatus: req.params.status
+      })
+        .toArray()
       )
     })
 
     // Get single class
-    app.get('/class/:id', async(req, res) => {
+    app.get('/class/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await classCollation.findOne(query);
       res.send(result)
     })
 
     // Update the class info
-    app.put('/class/:id', async(req, res) => {
+    app.put('/class/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
-      const options = {upsert: true};
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
       const updatedClass = req.body;
       const newClass = {
         $set: {
@@ -168,14 +177,40 @@ async function run() {
     })
 
     // Get Some Data by per parson add classes data
-    app.get('/my-classes', async(req, res) => {
-      console.log(req.query.email);
+    app.get('/my-classes', async (req, res) => {
       let query = {};
-      if(req.query?.email){
-        query = {instructorEmail: req.query.email}
+      if (req.query?.email) {
+        query = { instructorEmail: req.query.email }
       }
       const result = await classCollation.find(query).toArray();
       res.send(result)
+    })
+
+    //Make class approve api
+    app.patch('/class/approve/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          classStatus: 'approve'
+        },
+      };
+      const result = await classCollation.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+    //Make class deny api
+    app.patch('/class/deny/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          classStatus: 'deny'
+        },
+      };
+      const result = await classCollation.updateOne(filter, updateDoc);
+      res.send(result);
     })
 
     // JWT
@@ -184,7 +219,7 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '24h'
       });
-      res.send({token});
+      res.send({ token });
     })
 
     // Send a ping to confirm a successful connection
